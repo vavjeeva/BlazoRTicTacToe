@@ -1,0 +1,96 @@
+@using Microsoft.AspNetCore.SignalR.Client
+<div class="container-fluid" style="width:500px;">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(0))">
+            <span style="font-size:xx-large">@ShowBoard(0)</span>
+        </div>
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(1))">
+            <span style="font-size:xx-large">@ShowBoard(1)</span>
+        </div>
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(2))">
+            <span style="font-size:xx-large">@ShowBoard(2)</span>
+        </div>
+    </div>
+    <div class="row justify-content-center align-items-center">
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(3))">
+            <span style="font-size:xx-large">@ShowBoard(3)</span>
+        </div>
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(4))">
+            <span style="font-size:xx-large">@ShowBoard(4)</span>
+        </div>
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(5))">
+            <span style="font-size:xx-large">@ShowBoard(5)</span>
+        </div>
+    </div>
+    <div class="row justify-content-center align-items-center">
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(6))">
+            <span style="font-size:xx-large">@ShowBoard(6)</span>
+        </div>
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(7))">
+            <span style="font-size:xx-large">@ShowBoard(7)</span>
+        </div>
+        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(8))">
+            <span style="font-size:xx-large">@ShowBoard(8)</span>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    string humanPlayer = "X";
+    private string[] board = new string[9];
+    HubConnection connection;
+
+    protected async override Task OnInitAsync()
+    {
+        for (var i = 0; i < 9; i++)
+        {
+            board[i] = i.ToString();
+        }
+
+        //Initialize SignalR
+        connection = new HubConnectionBuilder()
+        .WithUrl("https://localhost:5001/gamehub")
+        .Build();
+
+        connection.On<int, string>("OnMoveReceived", OnMoveReceived);
+        await connection.StartAsync(); // Start the connection.
+    }
+
+    Task OnMoveReceived(int index, string player)
+    {
+        UpdateBoard(index, player);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnSelect(int index)
+    {
+        await connection.InvokeAsync("OnMoveReceived", index, humanPlayer);
+        UpdateBoard(index, humanPlayer);
+        StateHasChanged();
+
+    }
+
+    private void UpdateBoard(int index, string player)
+    {
+        if (!IsPlayed(board[index]))
+        {
+            board[index] = player;
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    private string ShowBoard(int index)
+    {
+        return IsPlayed(board[index]) ? board[index] : string.Empty;
+    }
+
+    private bool IsPlayed(string input)
+    {
+        return input == "X" || input == "O";
+    }
+}

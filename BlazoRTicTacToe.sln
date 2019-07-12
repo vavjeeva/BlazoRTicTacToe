@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29006.145
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoRTicTacToe", "BlazoRTicTacToe\BlazoRTicTacToe.csproj", "{1D4495AB-65B4-4968-9624-E4C892348DB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoRTicTacToeBot", "BlazoRTicTacToeBot\BlazoRTicTacToeBot.csproj", "{3C33EF11-DCED-4F73-9B06-55C9E20C83ED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D4495AB-65B4-4968-9624-E4C892348DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D4495AB-65B4-4968-9624-E4C892348DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D4495AB-65B4-4968-9624-E4C892348DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D4495AB-65B4-4968-9624-E4C892348DB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C33EF11-DCED-4F73-9B06-55C9E20C83ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C33EF11-DCED-4F73-9B06-55C9E20C83ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C33EF11-DCED-4F73-9B06-55C9E20C83ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C33EF11-DCED-4F73-9B06-55C9E20C83ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FFC16007-FAAE-4082-8BD6-43E9125E5318}
+	EndGlobalSection
+EndGlobal
