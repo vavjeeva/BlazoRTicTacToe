@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoRTicTacToeBot", "Blazo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoRTicTacToe", "BlazoRTicTacToe\BlazoRTicTacToe.csproj", "{3C9A6276-1355-4838-9EEB-E6A1F65828F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazoRTicTacToeGameEngine", "BlazoRTicTacToeGameEngine\BlazoRTicTacToeGameEngine.csproj", "{895B0E38-A0F9-4EC0-ABE7-3266CB314925}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{3C9A6276-1355-4838-9EEB-E6A1F65828F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C9A6276-1355-4838-9EEB-E6A1F65828F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C9A6276-1355-4838-9EEB-E6A1F65828F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{895B0E38-A0F9-4EC0-ABE7-3266CB314925}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{895B0E38-A0F9-4EC0-ABE7-3266CB314925}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{895B0E38-A0F9-4EC0-ABE7-3266CB314925}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{895B0E38-A0F9-4EC0-ABE7-3266CB314925}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BlazoRTicTacToeGameEngine;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,56 +13,48 @@ namespace BlazoRTicTacToeBot
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private string[] _currentBoard = new string[9];
-        private readonly string _botPlayer = "O";
+
         private HubConnection connection;
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
         }
 
-        async Task OnMoveReceived(int index, string humanPlayer)
+        async Task NotifyBot(string[] board, string connectionID)
         {
-            _currentBoard[index] = humanPlayer;
-            GameEngine engine = new GameEngine(_currentBoard, _botPlayer, humanPlayer);
-            MoveResultVO moveResultVO = engine.GetBestSpot(_currentBoard, _botPlayer);
-            string methodToInvoke = "OnMoveReceived";
-            //if (moveResultVO.score == -1)
-            //{
-            //    //Human Player Won
-            //    methodToInvoke = "OnMatchLoss";
-            //}
-            //else if (moveResultVO.score == 0)
-            //{
-            //    methodToInvoke = "OnMatchTie";
-            //}
-
-            await connection.InvokeAsync(methodToInvoke, int.Parse(moveResultVO.index), _botPlayer);
+            GameEngine engine = new GameEngine();
+            _logger.LogInformation($"Move received from {connectionID}");
+            Move move = engine.GetBestSpot(board, engine.botPlayer);
+            board[int.Parse(move.index)] = engine.botPlayer;
+            _logger.LogInformation($"Bot Move with the index of {move.index} send to {connectionID}");
+            await connection.InvokeAsync("OnBotMoveReceived", board, connectionID);
         }
-
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            for (var i = 0; i < 9; i++)
-            {
-                _currentBoard[i] = i.ToString();
-            }
-
             connection = new HubConnectionBuilder()
                 .WithUrl("https://localhost:5001/gamehub")
-                .ConfigureLogging(logging => {
-                    logging.SetMinimumLevel(LogLevel.Information);
-                    logging.AddConsole();
-                })
                 .Build();
-            connection.On<int, string>("OnMoveReceived", OnMoveReceived);            
+            connection.On<string[], string>("NotifyBot", NotifyBot);
             await connection.StartAsync(); // Start the connection.
+
+            //Add to BOT Group When Bot Connected
+            await connection.InvokeAsync("OnBotConnected");
+            _logger.LogInformation("Bot connected");
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(1000, stoppingToken);
             }
+        }
+
+        public async override Task StopAsync(CancellationToken cancellationToken)
+        {
+            await connection?.InvokeAsync("OnBotDisconnected");
+            connection?.DisposeAsync();
+            _logger.LogInformation("Bot disconnected");
+            await base.StopAsync(cancellationToken);
         }
     }
 }

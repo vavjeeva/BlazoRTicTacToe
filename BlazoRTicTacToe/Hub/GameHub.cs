@@ -10,22 +10,34 @@ namespace BlazoRTicTacToe
     public class GameHub : Hub
     {
         ILogger<GameHub> _logger;
+        private static readonly string BOT_GROUP = "BOT";
 
         public GameHub(ILogger<GameHub> logger)
         {
             _logger = logger;
-            _logger.LogInformation("GameHub Created");
+            _logger.LogInformation("Tic-Tac-Toe Game Hub Created");
         }
 
-        public override async Task OnConnectedAsync()
+        public async Task OnBotConnected()
         {
-            _logger.LogInformation("New Connection from Client");
-            await base.OnConnectedAsync();
+            await Groups.AddToGroupAsync(Context.ConnectionId, BOT_GROUP);
+            _logger.LogInformation("Bot joined");
         }
 
-        public async Task OnMoveReceived(int index, string player)
-        {            
-            await Clients.Others.SendAsync("OnMoveReceived", index, player);
+        public async Task OnBotDisconnected()
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, BOT_GROUP);
+            _logger.LogInformation("Bot left");
+        }
+
+        public async Task OnBotMoveReceived(string[] board, string connectionID)
+        {
+            await Clients.Client(connectionID).SendAsync("NotifyUser", board);
+        }
+
+        public async Task OnUserMoveReceived(string[] board)
+        {
+            await Clients.Group(BOT_GROUP).SendAsync("NotifyBot", board, Context.ConnectionId);
         }
     }
 }

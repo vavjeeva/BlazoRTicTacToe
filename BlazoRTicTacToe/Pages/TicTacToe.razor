@@ -1,45 +1,71 @@
 @using Microsoft.AspNetCore.SignalR.Client
-<div class="container-fluid" style="width:500px;">
-    <div class="row justify-content-center align-items-center">
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(0))">
-            <span style="font-size:xx-large">@ShowBoard(0)</span>
-        </div>
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(1))">
-            <span style="font-size:xx-large">@ShowBoard(1)</span>
-        </div>
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(2))">
-            <span style="font-size:xx-large">@ShowBoard(2)</span>
+@using BlazoRTicTacToeGameEngine
+
+@if (@playerWon != null)
+{
+    <div class="container h-100" style="width:500px;background:#ff6a00;padding:40px">
+        <div class="row h-50 justify-content-center align-items-center">
+            <span style="font-size:xx-large">@playerWon Won !</span>
         </div>
     </div>
-    <div class="row justify-content-center align-items-center">
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(3))">
-            <span style="font-size:xx-large">@ShowBoard(3)</span>
-        </div>
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(4))">
-            <span style="font-size:xx-large">@ShowBoard(4)</span>
-        </div>
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(5))">
-            <span style="font-size:xx-large">@ShowBoard(5)</span>
+}
+else if (@isDraw)
+{
+    <div class="container h-100" style="width:600px;background:#ff6a00;padding:40px">
+        <div class="row h-50 justify-content-center align-items-center">
+            <span style="font-size:xx-large">It's a Draw !</span>
         </div>
     </div>
-    <div class="row justify-content-center align-items-center">
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(6))">
-            <span style="font-size:xx-large">@ShowBoard(6)</span>
+}
+else if (@playerWon == null)
+{
+
+    <div class="container-fluid" style="width:500px;">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(0))">
+                <span style="font-size:xx-large">@ShowBoard(0)</span>
+            </div>
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(1))">
+                <span style="font-size:xx-large">@ShowBoard(1)</span>
+            </div>
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(2))">
+                <span style="font-size:xx-large">@ShowBoard(2)</span>
+            </div>
         </div>
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(7))">
-            <span style="font-size:xx-large">@ShowBoard(7)</span>
+        <div class="row justify-content-center align-items-center">
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(3))">
+                <span style="font-size:xx-large">@ShowBoard(3)</span>
+            </div>
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(4))">
+                <span style="font-size:xx-large">@ShowBoard(4)</span>
+            </div>
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(5))">
+                <span style="font-size:xx-large">@ShowBoard(5)</span>
+            </div>
         </div>
-        <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(8))">
-            <span style="font-size:xx-large">@ShowBoard(8)</span>
+        <div class="row justify-content-center align-items-center">
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(6))">
+                <span style="font-size:xx-large">@ShowBoard(6)</span>
+            </div>
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(7))">
+                <span style="font-size:xx-large">@ShowBoard(7)</span>
+            </div>
+            <div class="col-3 col-class text-center" @onclick="@(() => OnSelect(8))">
+                <span style="font-size:xx-large">@ShowBoard(8)</span>
+            </div>
         </div>
     </div>
+}
+<div class="text-center" style="padding:5px;">
+    <button class="btn btn-link" style="color:#ff6a00;font-weight:600" @onclick="@(()=>RestartGame())">Restart</button>
 </div>
 
-
 @code {
-    string humanPlayer = "X";
     private string[] board = new string[9];
     HubConnection connection;
+    GameEngine engine = new GameEngine();
+    string playerWon = null;
+    bool isDraw = false;
 
     protected async override Task OnInitAsync()
     {
@@ -53,44 +79,49 @@
         .WithUrl("https://localhost:5001/gamehub")
         .Build();
 
-        connection.On<int, string>("OnMoveReceived", OnMoveReceived);
-        await connection.StartAsync(); // Start the connection.
+        connection.On<string[]>("NotifyUser", NotifyUser);
+        await connection.StartAsync();
     }
 
-    Task OnMoveReceived(int index, string player)
+    Task NotifyUser(string[] newboard)
     {
-        UpdateBoard(index, player);
+        board = newboard;
+        if (engine.IsWon(board, engine.botPlayer))
+            playerWon = "Bot";
+        else if (engine.GetAvailableSpots(board).Length == 0)
+            isDraw = true;
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     private async Task OnSelect(int index)
     {
-        await connection.InvokeAsync("OnMoveReceived", index, humanPlayer);
-        UpdateBoard(index, humanPlayer);
-        StateHasChanged();
-
-    }
-
-    private void UpdateBoard(int index, string player)
-    {
-        if (!IsPlayed(board[index]))
+        if (!engine.IsPlayed(board[index]))
         {
-            board[index] = player;
-        }
-        else
-        {
-            return;
+            board[index] = engine.humanPlayer;
+            if (engine.IsWon(board, engine.humanPlayer))
+                playerWon = "Player";
+            else
+                await connection.InvokeAsync("OnUserMoveReceived", board);
+
+            StateHasChanged();
         }
     }
 
     private string ShowBoard(int index)
     {
-        return IsPlayed(board[index]) ? board[index] : string.Empty;
+        return engine.IsPlayed(board[index]) ? board[index] : string.Empty;
     }
 
-    private bool IsPlayed(string input)
+    private void RestartGame()
     {
-        return input == "X" || input == "O";
+        playerWon = null;
+        isDraw = false;
+        for (var i = 0; i < 9; i++)
+        {
+            board[i] = i.ToString();
+        }
+        StateHasChanged();
     }
+
 }
