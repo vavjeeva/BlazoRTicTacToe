@@ -14,8 +14,7 @@ namespace BlazoRTicTacToe
 
         public GameHub(ILogger<GameHub> logger)
         {
-            _logger = logger;
-            _logger.LogInformation("Tic-Tac-Toe Game Hub Created");
+            _logger = logger;           
         }
 
         public async Task OnBotConnected()

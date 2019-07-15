@@ -101,6 +101,8 @@ else if (@playerWon == null)
             board[index] = engine.humanPlayer;
             if (engine.IsWon(board, engine.humanPlayer))
                 playerWon = "Player";
+            else if (engine.GetAvailableSpots(board).Length == 0)
+                isDraw = true;
             else
                 await connection.InvokeAsync("OnUserMoveReceived", board);
 
